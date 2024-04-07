@@ -35,6 +35,9 @@ struct ContentView: View {
     @State private var round = 1
     let totalRounds = 8
     
+    @State private var animationAmount = [0.0, 0.0, 0.0]
+    @State private var opacityAmount = [1.0, 1.0, 1.0]
+    
     var body: some View {
         ZStack {
             RadialGradient(stops: [
@@ -63,9 +66,22 @@ struct ContentView: View {
                     ForEach(0..<3) { number in
                         Button {
                             flagTapped(number)
+//                            animationAmount[number] += 360
+                            withAnimation {
+                                animationAmount[number] += 360
+                                for i in 0..<opacityAmount.count {
+                                    if i != number {
+                                        opacityAmount[i] = 0.25
+                                    }
+                                }
+                            }
                         } label: {
                             Image(countries[number])
+                                .background(.red)
                                 .flagImage()
+                                .opacity(opacityAmount[number])
+                                .scaleEffect(/*@START_MENU_TOKEN@*/CGSize(width: 1.0, height: 1.0)/*@END_MENU_TOKEN@*/)
+                                .rotation3DEffect(.degrees(animationAmount[number]), axis: /*@START_MENU_TOKEN@*/(x: 0.0, y: 1.0, z: 0.0)/*@END_MENU_TOKEN@*/)
                         }
                     }
                 }
@@ -118,9 +134,15 @@ struct ContentView: View {
         }
     }
     
+    func resetAnimations() {
+        animationAmount = [0.0, 0.0, 0.0]
+        opacityAmount = [1.0, 1.0, 1.0]
+    }
+    
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+        resetAnimations()
     }
     
     func resetGame() {
